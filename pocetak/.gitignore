@@ -1,0 +1,16 @@
+# Virtuelno okruzenje (zauzima gigabajte i ne ide na Git)
+.venv/
+venv/
+env/
+
+# Licna podesavanja VS Code-a
+.vscode/
+
+# Privremeni Python fajlovi (za ubrzanje koda)
+__pycache__/
+*.pyc
+
+# Veliki PyTorch modeli i podaci (njih ne zelimo na GitHubu)
+*.pt
+*.pth
+data/

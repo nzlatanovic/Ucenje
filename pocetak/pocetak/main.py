@@ -49,7 +49,7 @@ x = x.to("cuda")
 print(x.device)"""
 
 
-"""A = torch.tensor([[1.,2.,3.],
+A = torch.tensor([[1.,2.,3.],
                   [4.,5.,6.]], device=device)
 
 
@@ -68,7 +68,7 @@ E = torch.randn(64, 128)
 # A.T ovo je transponovanje matrice i ono menja broj redova i kolona (vrednosti zamene mesta suprotno od glavne dijagonale tj 1.2 predje na 2.1 i vice versa)
 F = D @ E 
 
-describe_tensor(C)"""
+describe_tensor(C)
 
 
 
@@ -93,63 +93,3 @@ print(x.device)
 x.to("cuda")
 y.to("cpu")"""
 #print(torch.cuda.is_available())
-
-
-"""x = torch.tensor(4.0, requires_grad=True, device=device)
-
-y = 3 * x ** 2 + 2*x + 5
-
-#print(x)
-#print(y)
-
-y.backward() #zapocinje izracunavanja izvoda ali se ta vrendnost ne upisuje u y!!!
-
-print(x.grad) #vrednost se uvek cuva u ime_promenljive.grad (ime promenljive se odnosi na promenljivu po kojoj radimo izvod)
-
-#describe_tensor(x)
-
-
-x = torch.tensor(2.0, requires_grad=True)
-y = torch.tensor(3.0, requires_grad=True)
-
-z = x**2 + 3*x*y + y**2
-
-z.backward()
-
-print(x.grad) # 2x + 3y = 2 * 2 + 3 * 3 = 13
-print(y.grad) # 3x + 2y = 3 * 2 + 2 * 3 = 12
-
-
-x = torch.tensor(2.0, requires_grad=True)
-
-y = 3*x + 1
-
-loss = (y - 10)**2
-
-loss.backward()
-
-print(y)
-print(loss)
-print(x.grad)
-
-y = model(x) - Prolaz napred (izračunaj rezultat).
-loss = criterion(y, target) - Izračunaj grešku.
-loss.backward() - Izračunaj gradijente (izvode).
-optimizer.step() - Popravi model (promeni težine).
-"""
-
-"""x = torch.tensor(20.0, requires_grad=True, device=device)
-
-learning_rate=0.25
-
-for step in range(30):
-    loss = (x+3) ** 2
-
-    loss.backward()
-
-    with torch.no_grad(): #ovo sluzi da bi menjali vrednost promenljive ali ne i izvod
-        x -= learning_rate * x.grad # ovo ce biti u prvom krugu: 0.0 - 0.1 * 2 * (0.0 - 5.0) = 0 - 1 * (-10) = 0 -(-1) = 1
-
-    x.grad.zero_() # ovo sluzi za brisanje starih gradijenata (jer PyTorch dodaje nove gradijente na stare, a ako to dozvolimo program ce "poludeti")
-
-    print(step, x.item(), loss.item()) # klasican ispis, ".item" sluzi da bi broj lepse izgledao tjt (izvlacimo iz tensora obican Python broj)"""
