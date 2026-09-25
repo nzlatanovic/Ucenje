@@ -153,3 +153,88 @@ for step in range(30):
     x.grad.zero_() # ovo sluzi za brisanje starih gradijenata (jer PyTorch dodaje nove gradijente na stare, a ako to dozvolimo program ce "poludeti")
 
     print(step, x.item(), loss.item()) # klasican ispis, ".item" sluzi da bi broj lepse izgledao tjt (izvlacimo iz tensora obican Python broj)"""
+
+
+#w = torch.tensor(0.0, requires_grad=True, device=device)
+#b = torch.tensor(0.0, requires_grad=True, device=device)
+
+"""x = torch.tensor(2.0)
+
+target = torch.tensor(10.0)
+
+
+
+
+learning_rate = 0.01
+
+for step in range(100):
+
+
+    prediction = w * x + b
+
+    loss = (prediction - target) ** 2
+
+    loss.backward()
+
+    with torch.no_grad():
+        w-=learning_rate*w.grad
+        b-=learning_rate*b.grad
+    
+    w.grad.zero_()
+    b.grad.zero_()
+
+    if step % 10 == 0:
+        print(step, prediction.item(), loss.item())"""
+
+
+
+"""x = torch.tensor([1., 2., 3., 4., 5.], device=device)
+#y = torch.tensor([5., 8., 11., 14., 17.], device=device)
+# Treba dobiti ovo: y= 3*x + 2
+learning_rate = 0.04
+
+y = torch.tensor([2., 7., 12., 17., 22.], device=device) # vrednosti y menjamo u odnosu na ono sta nam se trazi (i primenjujemo sa x)
+# sada treba dobiti y = 5*x - 3
+
+print(w)
+print(b)
+
+for step in range(1000):
+
+    prediction = w * x + b #ovo je za pravu
+
+        #kako se formula za prediction menja u zavisnosti od zadatka:
+        #• Ako podaci prate pravu liniju, formula je:
+        #prediction = w * x + b
+        #• Ako podaci prate parabolu (kvadratnu funkciju), formula postaje:
+        #prediction = a * (x**2) + b * x + c
+        #• Ako imaš dva različita ulaza (npr. kvadratura x1 i broj soba x2), formula je:
+        #prediction = w1 * x1 + w2 * x2 + b
+        #Dakle, ti pišeš formulu koja odgovara "obliku" tvog problema.
+
+
+
+    loss=((prediction-y)**2).mean()
+
+    loss.backward()
+
+    with torch.no_grad():
+        w-=learning_rate*w.grad
+        b-=learning_rate*b.grad
+
+    w.grad.zero_() #ovo zero sluzi da resetuje gradijente (obavezno resetovati gradijente pre nego sto se ode dalje!)
+    b.grad.zero_()
+    if step % 10 == 0:
+        print(step, prediction.data, loss.item())
+
+print(w)
+print(b)
+
+x_novi = torch.tensor(10.0, device=device)
+nova_predikcija = w * x_novi + b
+print(nova_predikcija)"""
+
+
+
+
+
