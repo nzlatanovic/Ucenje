@@ -1,6 +1,7 @@
 import torch
+import torch.nn as nn
 
-device = torch.device("cuda")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def describe_tensor(x):
     print(f"--- Tensor Pregled ---")
@@ -235,6 +236,117 @@ nova_predikcija = w * x_novi + b
 print(nova_predikcija)"""
 
 
+# OVDE JE KOD ZA PROVERU PODATAKA TJ VERODOSTOJNOSTI ISTIH !??!!?
+"""x = torch.tensor([
+    [-3.0,  2.0],  
+    [-2.0,  4.0],  
+    [-1.0, -0.5],  
+    [ 1.0,  1.0],  
+    [ 2.0, -3.0],  
+    [ 3.0,  0.5]   
+])
+
+y = torch.tensor([
+    [0.0],
+    [1.0],
+    [0.0],
+    [1.0],
+    [0.0],
+    [1.0]
+])
+
+# 1. Generišemo 40 primera, gde svaki ima 2 kolone (x1 i x2)
+# Množenjem i oduzimanjem dobijamo opseg brojeva od -2.0 do 2.0
+x = torch.rand(40, 2) * 4 - 2
+
+# 2. Automatski računamo tačne odgovore (y) na osnovu pravila x1 + x2 > 0
+# x[:, 0] je prva kolona (x1), a x[:, 1] je druga kolona (x2)
+y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)"""
+
+
+# Generišemo 100 nasumičnih tačaka radi bolje preciznosti (2 kolone: x1 i x2)
+# Opseg od -1.5 do 1.5 da bi krug lepo upao u centar
+x = torch.rand(100, 2) * 3 - 1.5
+
+# Izvlačimo x1 i x2
+x1 = x[:, 0]
+x2 = x[:, 1]
+
+# USLOV ZA KRUG: Klasa 1 je ako je kvadrat udaljenosti manji od 1
+uslov = (x1**2 + x2**2) < 1
+
+# Pretvaramo u uspravnu kolonu (oblik)
+y = uslov.float().unsqueeze(1)
 
 
 
+model = nn.Sequential(
+    nn.Linear(2,10),
+    nn.ReLU(),
+    nn.Linear(10,1)
+)
+
+
+
+model = model.to(device)
+x = x.to(device)
+y = y.to(device)
+
+
+print(device)
+print(next(model.parameters()).device)
+
+output = model(x)
+print(output)
+
+sigmoid = nn.Sigmoid() #veliki negativan broj ce biti blizu 0, 0 ce biti 0.5, a veliki pozitivan broj ce biti blizu 1
+
+test = torch.tensor([-5.0, -2.0, 0.0, 2.0, 5.0])
+
+print(sigmoid(test))
+
+loss_fn = nn.BCEWithLogitsLoss()
+
+optimizer = torch.optim.Adam(
+    model.parameters(),
+    lr=0.01
+)
+
+for step in range(2001):
+    # 1. FORWARD PASS: Model uzima X i računa predviđanje (koristi formulu x * w + b)
+    prediction = model(x)
+
+    # 2. RAČUNANJE GREŠKE: Poredimo predviđanje modela sa tačnim odgovorima (y)
+    loss = loss_fn(prediction, y)
+
+    # 3. RESET GRADIJENATA: Brišemo stare proračune grešaka da se ne bi sabirali sa novim
+    optimizer.zero_grad()
+
+    # 4. BACKWARD PASS: PyTorch računa koliko je svaki parametar (w i b) kriv za grešku (aka racuna izvode)
+    loss.backward()
+
+    # 5. KORAK OPTIMIZACIJE: Optimizator blago menja w i b da bi smanjio grešku u sledećem krugu
+    optimizer.step()
+
+    if step % 10 == 0:
+        print(step, loss.item()) #ovo item znaci da pretvara u broj
+
+
+
+with torch.no_grad():
+    logits = model(x)
+    probabilities = torch.sigmoid(logits)
+
+#       Kada model radi binarnu klasifikaciju, na kraju izbaci sirov broj (logits). 
+#       Da bi taj broj pretvorio u procente koje razumeš, propustiš ga kroz torch.sigmoid().
+#       Sve to staviš unutar with torch.no_grad(): da bi kompjuter radio brže.
+
+predictions = (probabilities >= 0.5).float()
+
+print(probabilities)
+print(predictions)
+print(y)
+
+accuracy = (predictions == y).float().mean()
+
+print(accuracy.item())
