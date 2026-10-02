@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.utils.data import TensorDataset, DataLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -16,7 +17,11 @@ def describe_tensor(x):
     print(f"Najveci element: {x.max()}")
     print(f"----------------------\n")
 
-
+def accuracy_fn(logits, y):
+    probabilities=torch.sigmoid(logits)
+    predictions=(probabilities>=0.5).float()
+    accuracy=(predictions==y).float().mean()
+    return accuracy.item()*100
 
 
 """
@@ -236,7 +241,7 @@ nova_predikcija = w * x_novi + b
 print(nova_predikcija)"""
 
 
-# OVDE JE KOD ZA PROVERU PODATAKA TJ VERODOSTOJNOSTI ISTIH !??!!?
+# Dan 07: OVDE JE KOD ZA PROVERU PODATAKA TJ VERODOSTOJNOSTI ISTIH (Konkretno kruznica)!??!!?
 """x = torch.tensor([
     [-3.0,  2.0],  
     [-2.0,  4.0],  
@@ -261,7 +266,7 @@ x = torch.rand(40, 2) * 4 - 2
 
 # 2. Automatski računamo tačne odgovore (y) na osnovu pravila x1 + x2 > 0
 # x[:, 0] je prva kolona (x1), a x[:, 1] je druga kolona (x2)
-y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)"""
+y = (x[:, 0] + x[:, 1] > 0).float().unsqueeze(1)
 
 
 # Generišemo 100 nasumičnih tačaka radi bolje preciznosti (2 kolone: x1 i x2)
@@ -349,4 +354,114 @@ print(y)
 
 accuracy = (predictions == y).float().mean()
 
-print(accuracy.item())
+print(accuracy.item())"""
+
+# Dan 08: OVDE SMO RADILI SA BATCH-EVIMA (oni dele sa 32 i spori su za malo podataka ali su vrh za ogroman broj podataka)
+"""torch.manual_seed(42)
+
+x=torch.randn(1000, 2)
+
+y=((x[:, 0]**2 + x[:, 1]**2)<1).float().unsqueeze(1) #unsqueeze od niza pravi matricu dimenzija [x,1]
+
+x=x.to(device)
+y=y.to(device)
+
+print(x.shape)
+print(y.shape)
+print(y[:10])
+
+#describe_tensor(y)
+
+train_size = 800
+
+x_train = x[:train_size]
+y_train = y[:train_size]
+
+x_test = x[train_size:]
+y_test = y[train_size:]
+
+
+x_train = x_train.to(device)
+y_train = y_train.to(device)
+
+x_test = x_test.to(device)
+y_test = y_test.to(device)
+
+
+
+model = nn.Sequential(
+    nn.Linear(2,16),
+    nn.ReLU(),
+    nn.Linear(16,16),
+    nn.ReLU(),
+    nn.Linear(16,1)
+)
+model = model.to(device)
+
+loss_fn=nn.BCEWithLogitsLoss()
+
+optimizer=torch.optim.Adam(
+    model.parameters(),
+    lr=0.01
+)
+
+for step in range (3001):
+    prediction = model(x)
+
+    loss = loss_fn(prediction, y)
+
+    optimizer.zero_grad()
+
+    loss.backward()
+
+    optimizer.step()
+
+    if step % 100 == 0:
+        with torch.no_grad():
+            accuracy = accuracy_fn(prediction, y)
+
+            print(f"step {step}")
+            print(f"train loss: {loss.item():.4f}")
+            print(f"test accuracy: {accuracy:.1f}%")
+            print()
+
+
+
+train_dataset = TensorDataset(x_train, y_train)
+
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=32,
+    shuffle=True
+)
+
+
+for step in range (3001):
+    for batch_x, batch_y in train_loader:
+
+        prediction = model(batch_x)
+
+        loss = loss_fn(prediction, batch_y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    if step % 100 == 0:
+        with torch.no_grad():
+            accuracy = accuracy_fn(prediction, batch_y)
+
+            print(f"step {step}")
+            print(f"train loss: {loss.item():.4f}")
+            print(f"test accuracy: {accuracy:.1f}%")
+            print()"""
+
+
+
+
+
+
+
+
+
+
+
