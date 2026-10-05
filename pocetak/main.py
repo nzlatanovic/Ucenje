@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from torch.utils.data import TensorDataset, DataLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -456,12 +457,154 @@ for step in range (3001):
             print()"""
 
 
+#DAN 09:
+torch.manual_seed(42)
+
+x=torch.randn(1000, 2)
+
+y=((x[:, 0]**2 + x[:, 1]**2)<1).float().unsqueeze(1) #unsqueeze od niza pravi matricu dimenzija [x,1]
+
+x=x.to(device)
+y=y.to(device)
+
+print(x.shape)
+print(y.shape)
+print(y[:10])
+
+train_size = 700
+
+x_train = x[:train_size]
+y_train = y[:train_size]
+
+x_test = x[train_size:]
+y_test = y[train_size:]
+
+
+x_train = x_train.to(device)
+y_train = y_train.to(device)
+
+x_test = x_test.to(device)
+y_test = y_test.to(device)
+
+
+
+model = nn.Sequential(
+    nn.Linear(2,32),
+    nn.ReLU(),
+    nn.Linear(32,32),
+    nn.ReLU(),
+    nn.Linear(32,1)
+)
+model = model.to(device)
 
 
 
 
 
+loss_fn=nn.BCEWithLogitsLoss()
+
+optimizer=torch.optim.Adam(
+    model.parameters(),
+    lr=0.01
+)
+
+# 1. Kreiramo liste za čuvanje istorije
+epoch_count = []
+train_loss_values = []
+val_loss_values = []
+train_acc_values = []
+val_acc_values = []
+
+for step in range (101):
+    prediction = model(x)
+
+    loss = loss_fn(prediction, y)
+
+    optimizer.zero_grad()
+
+    loss.backward()
+
+    optimizer.step()
+
+    if step % 5 == 0:
+        model.eval()
+        with torch.no_grad():
+            train_logits = model(x_train)
+            train_loss = loss_fn(train_logits, y_train).item()
+            train_acc = accuracy_fn(train_logits, y_train)
+            
+            val_logits = model(x_test)
+            val_loss = loss_fn(val_logits, y_test).item()
+            val_acc = accuracy_fn(val_logits, y_test)
+
+            epoch_count.append(step)
+            train_loss_values.append(train_loss)
+            val_loss_values.append(val_loss)
+            train_acc_values.append(train_acc)
+            val_acc_values.append(val_acc)
 
 
+            print(f"Epoch {step}")
+            print(f"train loss: {train_loss:.2f}")
+            print(f"val loss: {val_loss:.2f}")
+            print(f"train acc: {train_acc:.0f}%")
+            print(f"val acc: {val_acc:.0f}%")
+            print()
 
+#import matplotlib.pyplot as plt
+
+# Kreiramo figuru sa dva grafikona (1 red, 2 kolone)
+plt.figure(figsize=(12, 5))
+
+# Grafik 1: Loss (Gubitak)
+plt.subplot(1, 2, 1)
+plt.plot(epoch_count, train_loss_values, label="Train Loss", color="blue")
+plt.plot(epoch_count, val_loss_values, label="Validation Loss", color="orange")
+plt.title("Grafik 1: Loss kroz epohe")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.legend()
+plt.grid(True)
+
+# Grafik 2: Accuracy (Tačnost)
+plt.subplot(1, 2, 2)
+plt.plot(epoch_count, train_acc_values, label="Train Accuracy", color="blue")
+plt.plot(epoch_count, val_acc_values, label="Validation Accuracy", color="orange")
+plt.title("Grafik 2: Accuracy kroz epohe")
+plt.xlabel("Epoch")
+plt.ylabel("Accuracy (%)")
+plt.legend()
+plt.grid(True)
+
+# Prikazivanje grafikona na ekranu
+plt.tight_layout()
+plt.show()
+
+"""train_dataset = TensorDataset(x_train, y_train)
+
+train_loader = DataLoader(
+    train_dataset,
+    batch_size=32,
+    shuffle=True
+)
+
+
+for step in range (3001):
+    for batch_x, batch_y in train_loader:
+
+        prediction = model(batch_x)
+
+        loss = loss_fn(prediction, batch_y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    if step % 100 == 0:
+        with torch.no_grad():
+            accuracy = accuracy_fn(prediction, batch_y)
+
+            print(f"step {step}")
+            print(f"train loss: {loss.item():.4f}")
+            print(f"test accuracy: {accuracy:.1f}%")
+            print()"""
 
